@@ -13,8 +13,9 @@ def get_norm(metamap_data, raw_text):
     return norm
 
 if __name__ == '__main__':
-    infile = sys.argv[1]
-    metamap_dict = sys.argv[2]
+    data_dir = sys.argv[1]
+    infile = '{}/train.csv.parsed'.format(data_dir)
+    metamap_dict = '{}/train.csv.json'.format(data_dir)
     outfile = '{}.norm'.format(infile)
 
     # Load the metamap dict
@@ -30,8 +31,8 @@ if __name__ == '__main__':
             head = get_norm(metamap_data, head)
 
             # Exclude 'root'
-            if rel == 'root':
-                continue
+            #if rel == 'root':
+            #    continue
 
             if tok not in graph:
                 graph[tok] = {}

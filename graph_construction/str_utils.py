@@ -7,7 +7,20 @@ def read_csv(infile):
         df = pd.read_csv(infile)
     except:
         df = pd.read_csv(infile, lineterminator='\n')
+
+    df = df.dropna()
+    df = df.reset_index(drop=True)
     return df
+    #new_df = {'text':[], 'label':[]}
+    #for (i, (text, label)) in enumerate(zip(df['text'], df['label'])):
+    #    if pd.isna(label) or pd.isna(text): # skip NaN
+    #        continue
+    #    if int(label) not in [0, 1]:
+    #        continue
+
+    #    new_df['text'].append(text)
+    #    new_df['label'].append(label)
+    #return new_df
 
 def preprocess(text):
     text = text.lower()
@@ -34,15 +47,6 @@ def preprocess(text):
     text = re.sub(r' +', ' ', text)
 
     return text
-
-
-def read_csv(infile):
-    try:
-        df = pd.read_csv(infile)
-    except:
-        df = pd.read_csv(infile, lineterminator='\n')
-    return df
-
 
 def process_digit(text):
     #if re.search(r'^(([0-9]+)|([0-9]+[\.\/][0-9]+))$', text) != None:

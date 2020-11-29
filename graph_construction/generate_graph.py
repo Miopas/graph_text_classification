@@ -5,7 +5,7 @@ import sys
 import re
 import string
 import pickle
-from str_utils import preprocess
+from str_utils import preprocess, read_csv
 
 # Load a UD-based english model
 nlp = spacy.load("en_ud_model_lg") # here you can change it to md/sm as you preffer
@@ -27,7 +27,7 @@ def process_doc(doc, graph):
             graph[tok] = {}
 
         # {'head': cookies, 'rel': 'case', 'src': 'UD', 'alt': None, 'unc': False}
-        objs = {}
+        objs = []
         for obj in doc[i]._.parent_list:
             #print(obj)
             head = str(obj['head'])
@@ -51,10 +51,7 @@ def process_doc(doc, graph):
 if __name__ == '__main__':
     infile = sys.argv[1]
 
-    try:
-        df = pd.read_csv(infile)
-    except:
-        df = pd.read_csv(infile, lineterminator='\n')
+    df = read_csv(infile)
 
     new_df = {'text':[], 'label':[]}
     g = {}
@@ -62,21 +59,24 @@ if __name__ == '__main__':
     for i, row in df.iterrows():
         text = preprocess(row['text'])
         label = row['label']
-        if int(label) != 1:
-            continue
+        #if int(label) != 1:
+        #    continue
 
         new_df['text'].append(text)
         new_df['label'].append(label)
 
-        doc = nlp(text)
-        parsed_objs = process_doc(doc, g)
-        preprocessed[row['text']] = parsed_objs
+        try:
+            doc = nlp(text)
+            parsed_objs = process_doc(doc, g)
+            preprocessed[row['text']] = parsed_objs
+        except:
+            pass
 
 
     pd.DataFrame(new_df).to_csv(infile + '.preprocessed', index=False)
 
     # Write the graph to the output file
-    fw = open(infile+'.pos.graph', 'w')
+    fw = open(infile+'.parsed', 'w')
     for tok, parent_obj in g.items():
         for head, rel_obj in parent_obj.items():
             for rel, count in rel_obj.items():
@@ -84,7 +84,7 @@ if __name__ == '__main__':
 
     fw.close()
 
-    with open('{}.pickle'.format(infile), 'wb') as handle:
-        pickle.dump(preprocessed, handle, protocol=pickle.HIGHEST_PROTOCOL)
+    #with open('{}.pickle'.format(infile), 'wb') as handle:
+    #    pickle.dump(preprocessed, handle, protocol=pickle.HIGHEST_PROTOCOL)
 
 
